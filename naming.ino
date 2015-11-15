@@ -13,7 +13,6 @@ char pass[] = "MyPassPhrase";
 
 //
 namespace tiny {
-
 template <typename T> class vector {
 private:
   size_t capacity;
@@ -26,10 +25,28 @@ public:
     , array(0)
   {
   }
+  vector(vector const &r)
+    : capacity(0)
+    , count(0)
+    , array(0)
+  {
+    reserve(r.size());
+    for (const_iterator it = r.begin(); it != r.end(); it++) {
+      push_back(*it);
+    }
+  }
   ~vector()
   {
     clear();
     delete[] (char *)array;
+  }
+  void operator = (vector const &r)
+  {
+    clear();
+    reserve(r.size());
+    for (const_iterator it = r.begin(); it != r.end(); it++) {
+      push_back(*it);
+    }
   }
   class const_iterator;
   class iterator {
@@ -47,12 +64,7 @@ public:
       return !ptr || ptr == end;
     }
   public:
-    iterator(T *p)
-      : ptr(p)
-      , end(0)
-    {
-    }
-    iterator(T *p, T *end)
+    iterator(T *p, T *end = 0)
       : ptr(p)
       , end(end)
     {
@@ -94,6 +106,14 @@ public:
     {
       return compare(it) > 0;
     }
+    bool operator <= (iterator const &it) const
+    {
+      return compare(it) <= 0;
+    }
+    bool operator >= (iterator const &it) const
+    {
+      return compare(it) >= 0;
+    }
     size_t operator - (iterator const &it) const
     {
       if (!ptr || !it.ptr) return 0;
@@ -114,9 +134,9 @@ public:
       return !ptr || ptr == end;
     }
   public:
-    const_iterator(T const *p)
+    const_iterator(T const *p, T const *end = 0)
       : ptr(p)
-      , end(0)
+      , end(end)
     {
     }
     const_iterator(iterator const &it)
@@ -124,12 +144,12 @@ public:
       , end(it.end)
     {
     }
-    bool operator == (iterator it) const
+    bool operator == (const_iterator it) const
     {
       if (isnull() && it.isnull()) return true;
       return compare(it) == 0;
     }
-    bool operator != (iterator it) const
+    bool operator != (const_iterator it) const
     {
       return !operator == (it);
     }
@@ -161,6 +181,14 @@ public:
     {
       return compare(it) > 0;
     }
+    bool operator <= (const_iterator const &it) const
+    {
+      return compare(it) <= 0;
+    }
+    bool operator >= (const_iterator const &it) const
+    {
+      return compare(it) >= 0;
+    }
     size_t operator - (const_iterator const &it) const
     {
       if (!ptr || !it.ptr) return 0;
@@ -183,8 +211,8 @@ public:
   void reserve(size_t n)
   {
     if (capacity < n) {
-      T *newarr = new char [sizeof(T) * n];
-      for (int i = 0; i < count; i++) {
+      T *newarr = (T *)new char [sizeof(T) * n];
+      for (size_t i = 0; i < count; i++) {
         new(newarr + i) T(array[i]);
         array[i].~T();
       }
@@ -245,7 +273,7 @@ public:
       if (n > capacity - count) {
         vector newvec;
         newvec.capacity = (((count + n) * 2) | 15) + 1;
-        newvec.array = (T *)new char[sizeof(T) * newvec.capacity];
+        newvec.array = (T *)new char [sizeof(T) * newvec.capacity];
         newvec.insert(newvec.end(), begin(), end());
         clear();
         delete array;
@@ -319,9 +347,25 @@ public:
     , last(0)
   {
   }
+  list(list const &r)
+    : count(0)
+    , first(0)
+    , last(0)
+  {
+    for (const_iterator it = r.begin(); it != r.end(); it++) {
+      push_back(*it);
+    }
+  }
   ~list()
   {
     clear();
+  }
+  void operator = (list const &r)
+  {
+    clear();
+    for (const_iterator it = r.begin(); it != r.end(); it++) {
+      push_back(*it);
+    }
   }
   size_t size() const
   {
@@ -364,6 +408,14 @@ public:
     {
       if (node) node = node->next;
     }
+    void operator -- ()
+    {
+      if (node) node = node->prev;
+    }
+    void operator -- (int)
+    {
+      if (node) node = node->prev;
+    }
     T &operator * ()
     {
       return node->val;
@@ -402,6 +454,14 @@ public:
     {
       if (node) node = node->next;
     }
+    void operator -- ()
+    {
+      if (node) node = node->prev;
+    }
+    void operator -- (int)
+    {
+      if (node) node = node->prev;
+    }
     T const &operator * () const
     {
       return node->val;
@@ -415,9 +475,17 @@ public:
   {
     return iterator(first);
   }
+  const_iterator begin() const
+  {
+    return const_iterator(first);
+  }
   iterator end()
   {
     return iterator(0);
+  }
+  const_iterator end() const
+  {
+    return const_iterator(0);
   }
   void erase(iterator it)
   {
