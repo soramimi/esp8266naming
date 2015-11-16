@@ -224,7 +224,7 @@ namespace tiny {
           new(newarr + i) T(array[i]);
           array[i].~T();
         }
-        delete[] array;
+        delete[] (char *)array;
         array = newarr;
         capacity = n;
       }
@@ -645,7 +645,7 @@ namespace tiny {
           ptr->~T();
           ptr++;
         }
-        delete[] (unsigned char *)data.core->fragment;
+        delete[] (char *)data.core->fragment;
         data.core->fragment = next;
       }
     }
@@ -656,7 +656,7 @@ namespace tiny {
       }
       if (data.core->fragment->next) {
         size_t len = size();
-        fragment_t *newptr = (fragment_t *)new unsigned char [sizeof(fragment_t) + sizeof(T) * len];
+        fragment_t *newptr = (fragment_t *)new char [sizeof(fragment_t) + sizeof(T) * len];
         newptr->next = 0;
         newptr->size = len;
         newptr->used = len;
@@ -745,7 +745,7 @@ namespace tiny {
             if (n < len) {
               n = len;
             }
-            fragment_t *newptr = (fragment_t *)new unsigned char [sizeof(fragment_t) + sizeof(T) * n];
+            fragment_t *newptr = (fragment_t *)new char [sizeof(fragment_t) + sizeof(T) * n];
             newptr->next = data.core->fragment;
             newptr->size = n;
             newptr->used = len;
@@ -875,7 +875,6 @@ namespace tiny {
   typedef t_stringbuffer<char> string;
 
 } // namespace tiny
-
 
 #define DNS_TYPE_A 1
 #define DNS_TYPE_PTR 12
