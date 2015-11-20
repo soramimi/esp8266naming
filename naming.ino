@@ -3,6 +3,7 @@
 #include <WiFiUdp.h>
 #include <ESP8266mDNS.h>
 #include <new>
+#include <vector>
 
 char ssid[] = "MySSID";
 char pass[] = "MyPassPhrase";
